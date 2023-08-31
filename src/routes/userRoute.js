@@ -40,10 +40,19 @@ router.patch("/users/:id", async (req, res) => {
     });
   }
   try {
-    const user = await User.findByIdAndUpdate(_id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    // For pre Middleware
+    const user = await User.findById(_id);
+    // user.name = 'John'
+    updates.forEach((update) => (user[update] = req.body[update]));
+
+    await user.save();
+
+    // NO run pre middleware
+    // console.log(user);
+    // const user = await User.findByIdAndUpdate(_id, req.body, {
+    //   new: true,
+    //   runValidators: true,
+    // });
 
     if (!user) {
       return res.status(404).send();
@@ -72,8 +81,5 @@ router.delete("/users/:id", async (req, res) => {
     res.status(500).send();
   }
 });
-
-
-
 
 module.exports = router;

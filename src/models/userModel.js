@@ -1,9 +1,8 @@
 const mongoose = require("mongoose");
-//Set up default mongoose connection
 
 const validator = require("validator");
-
-const User = mongoose.model("User", {
+const bcrypt = require("bcryptjs");
+const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -46,5 +45,16 @@ const User = mongoose.model("User", {
     },
   },
 });
+
+userSchema.pre("save", async function (next) {
+  var user = this;
+  if (user.isModified(user.password)) {
+    user.password = await bcrypt.hash(user.password, 8);
+  }
+  next();
+});
+
+// seprate model -> allow us to take advantage of middleware
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;
