@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const validator = require("validator");
-const bcrypt = require("bcryptjs");
 
+const bcrypt = require("bcryptjs");
 const Task = require("./taskModel");
 
 const userSchema = new mongoose.Schema(
@@ -59,7 +59,7 @@ const userSchema = new mongoose.Schema(
       },
     ],
     avatar: {
-      type: Buffer, 
+      type: Buffer,
     },
   },
   {
@@ -81,6 +81,7 @@ userSchema.methods.toJSON = function () {
   const userObj = user.toObject();
   delete userObj.password;
   delete userObj.tokens;
+  delete userObj.avatar;
 
   return userObj;
 };
@@ -110,7 +111,7 @@ userSchema.pre("findOneAndDelete", async function (next) {
 
 userSchema.methods.generateAuthToken = async function () {
   const user = this;
-  const token = jwt.sign({ _id: user._id.toString() }, "osama203202303", {
+  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET, {
     expiresIn: "5 days",
   });
   user.tokens = user.tokens.concat({ token });

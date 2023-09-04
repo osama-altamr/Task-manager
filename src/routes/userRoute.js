@@ -2,6 +2,8 @@ const User = require("../models/userModel");
 const express = require("express");
 const router = express.Router();
 
+// const sharp = require("sharp");
+const { sendWelocmeEmail, sendCancelationEmail } = require("../emails/account");
 const multer = require("multer");
 // Middleware Folder
 const authMiddleware = require("../middlewares/authMiddleware");
@@ -12,6 +14,8 @@ router.post("/users", async (req, res) => {
   try {
     const token = await user.generateAuthToken();
     await user.save();
+
+    sendWelocmeEmail(user.email, user.name);
     res.status(201).send({ user, token });
   } catch (e) {
     res.status(500).send(e);
@@ -161,6 +165,7 @@ router.get("/users", authMiddleware, (req, res) => {
 router.delete("/users/me", authMiddleware, async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.user._id);
+    sendCancelationEmail(user.email, user.name);
     res.status(200).send(user);
   } catch (err) {
     console.log(err);
@@ -186,8 +191,16 @@ router.post(
   authMiddleware,
   upload.single("avatar"),
   async (req, res) => {
+    const buffer = await sharp(req.file.buffer)
+      .resize({
+        width: 250,
+        height: 250,
+      })
+      .png()
+      .toBuffer();
+
     // To get buffer you need to comment the dest
-    req.user.avatar = req.file.buffer;
+    req.user.avatar = buffer;
     // console.log(req.user.avatar);
     await req.user.save();
     res.status(200).send();
@@ -199,4 +212,22 @@ router.post(
   }
 );
 
+router.delete("/users/me/avatar", authMiddleware, async (req, res) => {
+  req.user.avatar = undefined;
+  await req.user.save();
+  res.status(200).send();
+});
+router.get("/users/:id/avatar", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user || !user.avatar) {
+      throw new Error("");
+    }
+
+    res.set("Content-type", "image/png");
+    res.send(user.avatar);
+  } catch (err) {
+    res.status(404).send();
+  }
+});
 module.exports = router;

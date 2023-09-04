@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 //Set up default mongoose connection
 
-mongoose.connect("mongodb://127.0.0.1/task-manager", {
+mongoose.connect(process.env.MONGODB_URL, {
   useNewUrlParser: true,
   // useCreateIndex: true,
   // useFindAndModify: false,
