@@ -14,7 +14,7 @@ router.post("/users", async (req, res) => {
   try {
     const token = await user.generateAuthToken();
     await user.save();
-    sendWelocmeEmail(user.email, user.name);
+    // sendWelocmeEmail(user.email, user.name);
     res.status(201).send({ user, token });
   } catch (e) {
     res.status(500).send(e);
@@ -68,7 +68,6 @@ router.post("/users/login", async (req, res) => {
       req.body.password
     );
     const token = await user.generateAuthToken();
-
     res.send({ user, token });
   } catch (e) {
     res.status(400).send(e);
@@ -190,16 +189,16 @@ router.post(
   authMiddleware,
   upload.single("avatar"),
   async (req, res) => {
-    const buffer = await sharp(req.file.buffer)
-      .resize({
-        width: 250,
-        height: 250,
-      })
-      .png()
-      .toBuffer();
+    // const buffer = await sharp(req.file.buffer)
+    //   .resize({
+    //     width: 250,
+    //     height: 250,
+    //   })
+    //   .png()
+    //   .toBuffer();
 
     // To get buffer you need to comment the dest
-    req.user.avatar = buffer;
+    req.user.avatar = req.file.buffer;
     // console.log(req.user.avatar);
     await req.user.save();
     res.status(200).send();

@@ -114,3 +114,44 @@ test("Should not  delete account for unauthenticate user ", async () => {
     .set("Authorization", `Bearer ${wrongToken}`)
     .expect(401);
 });
+
+test("Should uplaod avatar image ", async () => {
+  await request(app)
+    .post("/users/me/avatar")
+    .set("Authorization", `Bearer ${userOne.tokens[0].token}`)
+    .attach("avatar", `${__dirname}/./fixtures/node.jpg`)
+    .expect(200);
+  const user = await User.findById(userOneId);
+
+  /*   // expect({}).toBe({});
+
+// avatar property check if it equals any buffer 
+
+
+  // 1 === 1 toBe
+  // {} === {}  equal the save properties */
+  expect(user.avatar).toEqual(expect.any(Buffer));
+});
+
+test("Should update valid user fields ", async () => {
+  await request(app)
+    .patch("/users/me")
+    .set("Authorization", `Bearer ${userOne.tokens[0].token}`)
+    .send({
+      name: "Tr loves it",
+    })
+    .expect(200);
+  const user = await User.findById(userOneId);
+
+  expect(user.name).toBe("Tr loves it");
+});
+
+test("Should not update invalid user fields ", async () => {
+  await request(app)
+    .patch("/users/me")
+    .set("Authorization", `Bearer ${userOne.tokens[0].token}`)
+    .send({
+      password: "osama2202",
+    })
+    .expect(400);
+});
