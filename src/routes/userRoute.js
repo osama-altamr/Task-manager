@@ -14,7 +14,6 @@ router.post("/users", async (req, res) => {
   try {
     const token = await user.generateAuthToken();
     await user.save();
-
     sendWelocmeEmail(user.email, user.name);
     res.status(201).send({ user, token });
   } catch (e) {
@@ -72,7 +71,7 @@ router.post("/users/login", async (req, res) => {
 
     res.send({ user, token });
   } catch (e) {
-    res.send(e);
+    res.status(400).send(e);
   }
 });
 

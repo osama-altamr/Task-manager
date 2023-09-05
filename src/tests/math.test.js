@@ -5,6 +5,9 @@ const {
   celsiusToFahrenheit,
 } = require("../math.js");
 
+
+require("dotenv").config({ path: `${__dirname}/./config/test.env` });
+
 test("Should calculate total with tip", () => {
   const total = calculateTip(10, 0.3);
 
