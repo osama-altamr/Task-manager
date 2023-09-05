@@ -1,27 +1,11 @@
 const request = require("supertest");
 const app = require("../app.js");
-const jwt = require("jsonwebtoken");
-const mongoose = require("mongoose");
+
 const User = require("../models/userModel");
 
-const userOneId = "64f706010682a1d87352fbb1";
+const { userOne, userOneId, setupDatabase } = require("./fixtures/db.js");
 
-beforeEach(async () => {
-  await User.deleteMany({});
-  await new User(userOne).save(); //for login test
-});
-// new mongoose.Types.ObjectId();
-const userOne = {
-  _id: userOneId,
-  email: "altamr@gmail.com",
-  password: "osamatmr2001",
-  name: "Osama altamr",
-  tokens: [
-    {
-      token: jwt.sign({ _id: userOneId }, process.env.JWT_SECRET),
-    },
-  ],
-};
+beforeEach(setupDatabase);
 
 /*
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NGY3
@@ -155,3 +139,10 @@ test("Should not update invalid user fields ", async () => {
     })
     .expect(400);
 });
+
+// User Test Ideas
+//
+// Should not signup user with invalid name/email/password
+// Should not update user if unauthenticated
+// Should not update user with invalid name/email/password
+// Should not delete user if unauthenticated
